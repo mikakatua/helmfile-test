@@ -1,0 +1,41 @@
+repositories:
+
+helmDefaults:
+  createNamespace: true
+  wait: true
+
+releases:
+  - name: postgres
+    chart: ./charts/postgres
+    values:
+      - ./values/kanban-postgres.yaml
+
+  - name: adminer
+    chart: ./charts/app
+    values:
+      - ./values/adminer.yaml
+    needs:
+      - postgres
+  
+  - name: kanban-app
+    chart: ./charts/app
+    values:
+      - ./values/kanban-app.yaml
+    needs:
+      - postgres
+
+  - name: kanban-ui
+    chart: ./charts/app
+    values:
+      - ./values/kanban-ui.yaml
+    needs:
+      - kanban-app
+
+  - name: ingress
+    chart: ./charts/ingress
+    values:
+      - ./values/ingress.yaml
+    needs:
+      - adminer
+      - kanban-app
+      - kanban-ui
